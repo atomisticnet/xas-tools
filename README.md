@@ -4,7 +4,7 @@
 
 Contact: Haoyue Guo, Nong Artrith, Deyu Lu, Alex Urban
 
-Emails: hg2568@columbia.edu, and a.urban@columbia.edu
+Emails: hg2568@columbia.edu and a.urban@columbia.edu
 
 ## Installation
 
