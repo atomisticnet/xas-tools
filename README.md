@@ -2,9 +2,9 @@
 
 **Tools related to X-ray absorption spectroscopy (XAS) calculations**.
 
-Contact: Haoyue Guo*, Nong Artrith, Deyu Lu, Alex Urban*
+Part of DOE VTO Project: Haoyue Guo*, Nong Artrith*, Deyu Lu, Alex Urban*
 
-Emails: hg2568@columbia.edu and a.urban@columbia.edu
+Contact: hg2568@columbia.edu, nartrith@atomistic.net, and a.urban@columbia.edu
 
 ## Installation
 
