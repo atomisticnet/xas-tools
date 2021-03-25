@@ -1,6 +1,6 @@
 # xas-tools
 
-Tools related to X-ray absorption spectroscopy (XAS) calculations.
+**Tools related to X-ray absorption spectroscopy (XAS) calculations.
 
 Contact: Haoyue Guo, Nong Artrith, Alex Urban
 
