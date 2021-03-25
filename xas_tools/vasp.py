@@ -74,3 +74,11 @@ class CHPCalculation(object):
                         equivalent_atoms[-1].append(self.atoms[atom2][0])
                         assigned.append(self.atoms[atom2][0])
         return equivalent_atoms
+
+    def write_vasp_input(self, path):
+        """
+        Write VASP input files to the selected path.
+
+        """
+        raise NotImplementedError(
+            "Input file generation is not yet implemented.")
