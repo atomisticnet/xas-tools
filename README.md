@@ -31,3 +31,7 @@ The following list describes the “workflow” that we need to implement:
    * Average aligned outputs with the correct weights to compute the XAS spectrum
 
 Most of this will be implemented in [`xas_tools.vasp`](./xas_tools/vasp.py).
+
+## Acknowledgments
+
+We acknowledge financial support by the U.S. Department of Energy (DOE) Office of Energy Efficiency and Renewable Energy, Vehicle Technologies Office, Contract No. DE-SC0012704. DFT calculations and machine-learning model construction made use of the Extreme Science and Engineering Discovery Environment (XSEDE), which is supported by National Science Foundation grant number ACI-1053575 (allocation no. DMR14005). Calculations were also performed on the computational resources of the Center for Functional Nanomaterials, which is a U.S. DOE Office of Science Facility, at Brookhaven National Laboratory under Contract No. DE-SC0012704. We also acknowledge computing resources from Columbia University’s Shared Research Computing Facility project, which is supported by NIH Research Facility Improvement Grant 1G20RR030893-01, and associated funds from the New York State Empire State Development, Division of Science Technology and Innovation (NYSTAR) Contract C090171, both awarded April 15, 2010.
