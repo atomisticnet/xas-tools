@@ -1,0 +1,75 @@
+
+#(C) 2020 by FIZ Karlsruhe - Leibniz Institute for Information Infrastructure.  All rights reserved.
+data_180318-ICSD
+_database_code_ICSD 180318
+_audit_creation_date 2011-08-01
+_chemical_name_common 'Trilithium tetrathiophosphate - gamma'
+_chemical_formula_structural 'Li3 (P S4)'
+_chemical_formula_sum 'Li3 P1 S4'
+_chemical_name_structure_type Enargite#Cu3AsS4
+_exptl_crystal_density_diffrn 1.93
+_diffrn_ambient_temperature 297.
+_citation_title
+
+;
+Crystal structure and phase transitions of the lithium ionic conductor Li3 P
+S4
+;
+loop_
+_citation_id
+_citation_journal_full
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Solid State Ionics' 2011 182 53 58 SSIOD3
+loop_
+_citation_author_citation_id
+_citation_author_name
+primary 'Homma, K.'
+primary 'Yonemura, M.'
+primary 'Kobayashi, T.'
+primary 'Nagao, M.'
+primary 'Hirayama, M.'
+primary 'Kanno, R.'
+_cell_length_a 7.70829(11)
+_cell_length_b 6.53521(10)
+_cell_length_c 6.1365(7)
+_cell_angle_alpha 90.
+_cell_angle_beta 90.
+_cell_angle_gamma 90.
+_cell_volume 309.13
+_cell_formula_units_Z 2
+_space_group_name_H-M_alt 'P m n 21'
+_space_group_IT_number 31
+loop_
+_space_group_symop_id
+_space_group_symop_operation_xyz
+1 'x+1/2, -y, z+1/2'
+2 '-x+1/2, -y, z+1/2'
+3 '-x, y, z'
+4 'x, y, z'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+Li1+ 1
+P5+ 5
+S2- -2
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+Li1 Li1+ 4 b 0.2502(4) 0.3309(5) 0.0179(3) 0.12(13) 1.
+Li2 Li1+ 2 a 0 0.145(2) 0.486(2) 0.12(13) 1.
+P1 P5+ 2 a 0 0.8218(3) 0.9942(3) 0.14(2) 1.
+S1 S2- 4 b 0.2185(17) 0.6717(2) 0.8857(2) 0.68(2) 0.97(3)
+S2 S2- 2 a 0 0.1083(4) 0.888(4) 0.59(6) 0.98(2)
+S3 S2- 2 a 0 0.8049(3) 0.3230(2) 0.77(3) 0.99(3)
+#End of TTdata_180318-ICSD
