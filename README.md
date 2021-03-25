@@ -1,6 +1,8 @@
 # xas-tools
 
 Tools related to X-ray absorption spectroscopy (XAS) calculations.
+Contact: Haoyue Guo, Nong Artrith, Alex Urban
+Emails: hg2568@columbia.edu and a.urban@columbia.edu
 
 ## Installation
 
