@@ -42,5 +42,5 @@ setup(
     keywords=['materials science', 'spectroscopy'],
     packages=find_packages(exclude=['tests']),
     scripts=glob.glob(os.path.join("scripts", "*.py")),
-    install_requires=['numpy', 'pymatgen']
+    install_requires=['numpy', 'pymatgen', 'yaml']
 )
