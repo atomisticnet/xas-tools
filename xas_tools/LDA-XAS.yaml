@@ -1,0 +1,38 @@
+INCAR:
+  ALGO: FAST
+  EDIFF: 1.0e-05
+  EDIFFG: -0.01
+  ENCUT: 400
+  ISMEAR: 0
+  ISPIN: 2
+  LORBIT: '11'
+  LREAL: AUTO
+  LWAVE: false
+  PREC: Accurate
+  SIGMA: 0.05
+  ICORELEVEL: 2
+  CLNT: 1
+  CLN: 1
+  CLL: 0
+  CLZ: 1.0
+  CH_LSPEC: .TRUE.
+  CH_SIGMA: 0.05
+  LCHARG: .FALSE.
+  LWAVE: .FALSE.
+KPOINTS:
+  # length: 25
+  grid_density: 6000
+POTCAR_FUNCTIONAL: "LDA_52"
+POTCAR:
+  Li:
+    symbol: Li_GW
+  P:
+    symbol: P_GW
+  S:
+    symbol: S_GW
+  Ni:
+    symbol: Ni_GW
+  Mn:
+    symbol: Mn_GW
+  Co:
+    symbol: Co_GW
