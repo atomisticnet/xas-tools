@@ -1,1 +1,1 @@
-How to use the scripts for X-ray absorption spectroscopy (XAS) calculations.
+**How to use the scripts for X-ray absorption spectroscopy (XAS) calculations.**
