@@ -6,7 +6,7 @@ import glob
 __author__ = "The Atomistic.net Team"
 __email__ = "nartrith@atomistic.net"
 __maintainer__ = "Haoyue Guo, Alexander Urban, Nongnuch Artrith"
-__maintainer_email__ = "hg2568@columbia.edu, a.urban@columbia.edu"
+__maintainer_email__ = "hg2568@columbia.edu, a.urban@columbia.edu, nartrith@atomistic.net"
 
 here = os.path.abspath(os.path.dirname(__file__))
 package_name = 'xas_tools'
