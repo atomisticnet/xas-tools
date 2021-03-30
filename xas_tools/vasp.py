@@ -19,8 +19,9 @@ from pymatgen.io.vasp.sets import DictSet
 
 __author__ = "Alex Urban, Haoyue Guo, Jianzhou Qu, Qian Wang, Nong Artrith"
 __email__ = "a.urban@columbia.edu, hg2568@columbia.edu"
-__maintainer__ = "Haoyue Guo, Alexander Urban"
-__maintainer_email__ = "hg2568@columbia.edu, a.urban@columbia.edu"
+__maintainer__ = "Haoyue Guo, Nong Artrith, Alexander Urban"
+__maintainer_email__ = ("hg2568@columbia.edu, nartrith@atomistic.net"
+                        + ", a.urban@columbia.edu")
 __date__ = "2021-03-24"
 __version__ = "0.1"
 
@@ -29,21 +30,32 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 class CHPCalculation(object):
 
-    def __init__(self, structure: mg.core.Structure, element: str = "S"):
+    def __init__(self, structure: mg.core.Structure, element: str = "S",
+                 n: int = 1, ell: int = 0, z: float = 1.0):
         """
         Args:
           structure: Atomic structure
-          species: Chemical symbol of the element that is probed
+          element: Chemical symbol of the element that is probed
+          n: principal quantum number of the excited electron
+          ell: angular momentum quantum number of the excited electron
+          z: electron count, i.e., for fractional core holes is shielding
+            is considered
+
+          Example: the K edge would correspond to (n, ell) = (1, 0), i.e.,
+                   excitation from the 1s orbitals.
 
         """
         self.structure = structure
         self.xas_element = mg.Element(element)
+        self.ch_n = n
+        self.ch_l = ell
+        self.ch_z = z
         self.atoms = [(i, s) for i, s in enumerate(structure)
                       if s.specie == self.xas_element]
         self.equivalent_atoms = self._check_equivalent_atoms()
         self.weights = [len(group) for group in self.equivalent_atoms]
 
-        # mark active atoms with the group that they belong to
+        # mark active atoms with the symmetry group that they belong to
         select_for_core_hole = np.array([0 for i in self.structure])
         for i, equiv_set in enumerate(self.equivalent_atoms):
             select_for_core_hole[equiv_set] = i + 1
@@ -99,9 +111,12 @@ class CHPCalculation(object):
 
         """
         atom_types = [s.properties["ch_select"] for s in self.structure]
-        return {t: atom_types.count(t) for t in self.active_atom_types}
+        cnt = {t: atom_types.count(t) for t in self.active_atom_types}
+        n = np.gcd.reduce(list(cnt.values()))
+        return {t: cnt[t]//n for t in cnt}
 
-    def write_vasp_input(self, supercell=None, band_multiple=1, path=None):
+    def write_vasp_input(self, supercell=None, band_multiple=1,
+                         path=".", vasp_set="LDA-XAS", write_no_ch=True):
         """
         Write VASP input files to the selected path.
 
@@ -110,14 +125,49 @@ class CHPCalculation(object):
           band_multiple: Set NBANDS to band_multiple times the number of
             valence electrons
           path: base path name for input file directories
+          vasp_set: name of the VASP input parameter set or path to a
+            YAML file; currently only one named set is available (LDA-XAS)
+          write_no_ch: If True, will also generate input files for a
+            regular SCF calculations without core hole using the same
+            input file parameters.
 
         """
         struc_super = self.structure.copy()
         if supercell is not None:
             struc_super.make_supercell(supercell)
 
-        with open(os.path.join(HERE, "LDA-XAS.yaml")) as fp:
-            config = yaml.load(fp, Loader=yaml.FullLoader)
+        try:
+            with open(os.path.join(HERE, "{}.yaml".format(vasp_set))) as fp:
+                config = yaml.load(fp, Loader=yaml.FullLoader)
+        except FileNotFoundError:
+            with open(vasp_set) as fp:
+                config = yaml.load(fp, Loader=yaml.FullLoader)
+
+        vaspset = DictSet(struc_super, config,
+                          sort_structure=False,
+                          force_gamma=True)
+
+        # number of valence electrons for each atomic species,
+        # identified by the atomic number
+        num_elec = {
+            p.atomic_no: np.sum(
+                [n for _, _, n in p.electron_configuration])
+            for p in vaspset.potcar
+        }
+
+        # total number of valence electrons
+        num_valence = np.sum(
+            [num_elec[s.specie.number] for s in vaspset.structure])
+
+        if write_no_ch:
+            # set the number of bands according to the user-defined
+            # multiple:
+            vaspset.user_incar_settings.update({
+                'NBANDS': num_valence*band_multiple
+            })
+            vaspset.write_input(
+                os.path.join(path, "XAS_input_SCF"),
+                make_dir_if_not_present=True)
 
         for t in self.active_atom_types:
             # get sites of all active atoms of the same type
@@ -136,24 +186,18 @@ class CHPCalculation(object):
                               sort_structure=False,
                               force_gamma=True)
 
-            # number of valence electrons for each atomic species,
-            # identified by the atomic number
-            num_elec = {
-                p.atomic_no: np.sum(
-                    [n for _, _, n in p.electron_configuration])
-                for p in vaspset.potcar
-            }
-
-            # total number of valence electrons
-            num_valence = np.sum(
-                [num_elec[s.specie.number] for s in vaspset.structure])
-
             # set the number of bands according to the user-defined
-            # multiple
-            vaspset.user_incar_settings['NBANDS'] = num_valence*band_multiple
+            # multiple and set core-hole potential parameters:
+            vaspset.user_incar_settings.update({
+                'NBANDS': num_valence*band_multiple,
+                'ICORELEVEL': 2,
+                'CLNT': 1,
+                'CLN': self.ch_n,
+                'CLL': self.ch_l,
+                'CLZ': self.ch_z
+            })
 
-            if path is None:
-                path = "XAS_input"
             vaspset.write_input(
-                "{}_{}_{}".format(path, t, self.active_mult[t]),
+                os.path.join(path, "XAS_input_{}_{}".format(
+                        t, self.active_mult[t])),
                 make_dir_if_not_present=True)

@@ -10,13 +10,6 @@ INCAR:
   LWAVE: false
   PREC: Accurate
   SIGMA: 0.05
-  ICORELEVEL: 2
-  CLNT: 1
-  CLN: 1
-  CLL: 0
-  CLZ: 1.0
-  CH_LSPEC: .TRUE.
-  CH_SIGMA: 0.05
   LCHARG: .FALSE.
   LWAVE: .FALSE.
 KPOINTS:
