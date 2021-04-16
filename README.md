@@ -26,7 +26,7 @@ The following list describes the “workflow” that we need to implement:
 4. Generate VASP input files for
    * Single-point LDA calculation of the PBE structure (for band alignment); original cell
    * Core-hole potential calculations for all symmetrically distinct S atoms; supercell
-5. After the calculations are done:
+5. After the calculations are done (XAS database):
    * Apply peak alignment to distinct S atoms: `Efermi + Escf`, `Escf` = `Etotal_energy_of_excited_state` – `Etotal_energy_of_ground_state`
    * Average aligned outputs with the correct weights to compute the XAS spectrum
 
