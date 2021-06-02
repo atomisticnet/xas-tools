@@ -15,7 +15,7 @@ from xas_tools.vasp import CHPCalculation
 __author__ = "Alexander Urban"
 __email__ = "aurban@atomistic.net"
 __date__ = "2021-03-27"
-__version__ = "0.1"
+__version__ = "0.11"
 
 
 def make_input(poscar_files, supercell, band_multiple, element, level,
