@@ -8,14 +8,22 @@ Set up and analyze XAS calculations performed with VASP.
 
 """
 
+import glob
 import os
+import re
 
+import json
 import yaml
 import numpy as np
+
+import pandas as pd
 
 import pymatgen as mg
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.sets import DictSet
+from pymatgen.io.vasp.outputs import Outcar, Oszicar
+
+import monty
 
 __author__ = "Alex Urban, Haoyue Guo, Jianzhou Qu, Qian Wang, Nong Artrith"
 __email__ = "a.urban@columbia.edu, hg2568@columbia.edu"
@@ -169,8 +177,13 @@ class CHPCalculation(object):
                 os.path.join(path, "XAS_input_SCF"),
                 make_dir_if_not_present=True)
 
+        w1 = len(str(max(self.active_atom_types)))
+        w2 = len(str(max(self.active_mult.values())))
+        dir_frmt = ("XAS_input_{:0" + "{}".format(w1)
+                    + "d}_{:0" + "{}".format(w2) + "d}")
+
         for t in self.active_atom_types:
-            # get sites of all active atoms of the same type
+            # Get sites of all active atoms of the same type
             active = [i for i, s in enumerate(struc_super)
                       if s.properties["ch_select"] == t]
 
@@ -198,6 +211,114 @@ class CHPCalculation(object):
             })
 
             vaspset.write_input(
-                os.path.join(path, "XAS_input_{}_{}".format(
-                        t, self.active_mult[t])),
+                os.path.join(path, dir_frmt.format(t, self.active_mult[t])),
                 make_dir_if_not_present=True)
+
+
+def parse_vasp_chp_output(base_path, output_path='XAS_output'):
+    """
+    Read and process output from core-hole potential calculations.
+
+    Args:
+      base_path (str): Path to a directory with VASP output subdirectories.
+        The directory needs to contain an scf calculation in a directory
+        named "XAS_input_SCF" and the core-hole potential calculations
+        in directories named "XAS_input_*_*".
+      output_path (str): Directory in which the processed XAS output data
+        should be collected.
+
+    Returns:
+      An AbsorptionSpectrum object
+
+    """
+
+    no_ch_path = glob.glob(os.path.join(base_path, 'XAS_input_SCF'))[0]
+    ch_paths = glob.glob(os.path.join(base_path, 'XAS_input_*_*'))
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+        outdir = os.path.join(
+            output_path, 'structure_{}'.format(1))
+    else:
+        num_old = len(glob.glob(os.path.join(output_path, 'structure_*')))
+        outdir = os.path.join(
+            output_path, 'structure_{}'.format(num_old + 1))
+    os.mkdir(outdir)
+
+    # read the total energy of the calculation without core hole
+    oszicar_path_no_ch = glob.glob(os.path.join(no_ch_path, "OSZICAR"))[0]
+    oszicar_no_ch = Oszicar(oszicar_path_no_ch)
+    etot_no_ch = oszicar_no_ch.ionic_steps[-1]['E0']
+
+    # read also the structures to determine the size of the supercell
+    structure_no_ch = mg.Structure.from_file(
+        os.path.join(no_ch_path, 'CONTCAR'))
+    structure_ch = mg.Structure.from_file(os.path.join(ch_paths[0], 'CONTCAR'))
+    N_no_ch = len(structure_no_ch.sites)
+    N_ch = len(structure_ch.sites)
+    supercell = N_ch/N_no_ch
+
+    multiplicity = [int(os.path.basename(p).split('_')[-1]) for p in ch_paths]
+    metadata = {
+        'origin': os.path.relpath(base_path, outdir),
+        'supercell_size': supercell,
+        'supercell_composition': structure_ch.composition.formula,
+        'unique_atoms': len(ch_paths),
+        'multiplicity': multiplicity,
+        'total_energy_scf': etot_no_ch*supercell,
+        'total_energy_ch': [],
+        'fermi_energy_ch': [],
+        'scf_path': os.path.relpath(no_ch_path, outdir),
+        'ch_path': [],
+        'spectrum_path': []
+    }
+
+    w1 = len(str(len(ch_paths)))
+    w2 = len(str(max(multiplicity)))
+    csv_path_frmt = ("atom_{:0" + "{}".format(w1)
+                     + "d}_{:0" + "{}".format(w2) + "d}.csv")
+
+    for i, path in enumerate(ch_paths):
+        outcar_path = glob.glob(os.path.join(path, "OUTCAR*"))[0]
+        oszicar_path = glob.glob(os.path.join(path, "OSZICAR*"))[0]
+
+        # read total energy
+        oszicar = Oszicar(oszicar_path)
+        etot_ch = oszicar.ionic_steps[-1]['E0']
+        dE = etot_ch - etot_no_ch*supercell
+
+        # read Fermi energy
+        oc = Outcar(outcar_path)
+
+        # extract the raw XAS spectrum
+        xas = []
+        with monty.io.zopen(outcar_path) as fp:
+            line = fp.readline()
+            while not re.search('IMAGINARY DIELECTRIC FUNCTION',
+                                line.decode('utf-8')):
+                line = fp.readline()
+            fp.readline()
+            fp.readline()
+            line = fp.readline().decode('utf-8')
+            while len(line.strip()) > 0:
+                dielectric = [float(a) for a in line.split()]
+                xas.append([dielectric[0], dielectric[0] + dE,
+                            np.sum(dielectric[1:])])
+                line = fp.readline().decode('utf-8')
+        xas = np.array(xas)
+
+        df = pd.DataFrame(data=xas,
+                          columns=['Raw Energy (eV)',
+                                   'Aligned Energy (eV)',
+                                   'Intensity'])
+        csv_path = csv_path_frmt.format(i+1, multiplicity[i])
+        df.to_csv(os.path.join(outdir, csv_path), index=False)
+
+        # keep track of meta data
+        metadata['ch_path'].append(os.path.relpath(path, outdir))
+        metadata['total_energy_ch'].append(etot_ch)
+        metadata['fermi_energy_ch'].append(oc.efermi)
+        metadata['spectrum_path'].append(csv_path)
+
+    with open(os.path.join(outdir, 'metadata.json'), 'w') as fp:
+        json.dump(metadata, fp)
