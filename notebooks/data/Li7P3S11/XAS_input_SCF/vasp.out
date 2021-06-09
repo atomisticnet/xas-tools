@@ -1,0 +1,55 @@
+Wed Apr 14 13:11:41 EDT 2021
+ running on   32 total cores
+ distrk:  each k-point on   32 cores,    1 groups
+ distr:  one band on    8 cores,    4 groups
+ using from now: INCAR     
+ vasp.6.1.1 19Jun20 (build Mar 12 2021 19:31:03) complex                        
+  
+ POSCAR found type information on POSCAR LiP S 
+ POSCAR found :  3 types and      42 ions
+ -----------------------------------------------------------------------------
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|     You use a magnetic or noncollinear calculation, but did not specify     |
+|     the initial magnetic moment with the MAGMOM tag. Note that a            |
+|     default of 1 will be used for all atoms. This ferromagnetic setup       |
+|     may break the symmetry of the crystal, in particular it may rule        |
+|     out finding an antiferromagnetic solution. Thence, we recommend         |
+|     setting the initial magnetic moment manually or verifying carefully     |
+|     that this magnetic setup is desired.                                    |
+|                                                                             |
+ -----------------------------------------------------------------------------
+
+ scaLAPACK will be used
+ LDA part: xc-table for Ceperly-Alder, standard interpolation
+ generate k-points for:    2    4    2
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ FFT: planning ...
+ WAVECAR not read
+ WARNING: chargedensity file is incomplete
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1     0.881879785528E+03    0.88188E+03   -0.70309E+04  6336   0.112E+03
+DAV:   2    -0.984952533320E+02   -0.98038E+03   -0.93235E+03  7952   0.196E+02
+DAV:   3    -0.197688688929E+03   -0.99193E+02   -0.98210E+02  8104   0.660E+01
+DAV:   4    -0.199970715964E+03   -0.22820E+01   -0.22723E+01  7944   0.115E+01
+DAV:   5    -0.200037689133E+03   -0.66973E-01   -0.66900E-01  7824   0.195E+00    0.422E+01
+RMM:   6    -0.195577727055E+03    0.44600E+01   -0.13429E+01  6506   0.586E+00    0.258E+01
+RMM:   7    -0.202640651915E+03   -0.70629E+01   -0.10088E+01  7198   0.542E+00    0.105E+01
+RMM:   8    -0.203689350169E+03   -0.10487E+01   -0.22523E+00  7603   0.293E+00    0.411E+00
+RMM:   9    -0.203579265120E+03    0.11009E+00   -0.29557E-01  7892   0.131E+00    0.169E+00
+RMM:  10    -0.203561996163E+03    0.17269E-01   -0.15444E-01  7933   0.767E-01    0.718E-01
+RMM:  11    -0.203566704044E+03   -0.47079E-02   -0.23670E-02  8180   0.337E-01    0.506E-01
+RMM:  12    -0.203568138256E+03   -0.14342E-02   -0.67192E-03  8574   0.159E-01    0.284E-01
+RMM:  13    -0.203569168739E+03   -0.10305E-02   -0.17884E-03  7991   0.809E-02    0.902E-02
+RMM:  14    -0.203569337060E+03   -0.16832E-03   -0.63792E-04  8113   0.474E-02    0.449E-02
+RMM:  15    -0.203569340132E+03   -0.30720E-05   -0.16688E-04  8229   0.263E-02    0.299E-02
+RMM:  16    -0.203569343756E+03   -0.36236E-05   -0.58748E-05  7176   0.146E-02
+   1 F= -.20356934E+03 E0= -.20356934E+03  d E =-.443280E-15  mag=    -0.0008
+Wed Apr 14 13:14:21 EDT 2021

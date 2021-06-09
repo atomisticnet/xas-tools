@@ -1,0 +1,105 @@
+ running on   32 total cores
+ distrk:  each k-point on   32 cores,    1 groups
+ distr:  one band on    1 cores,   32 groups
+ using from now: INCAR     
+ vasp.6.1.1 19Jun20 (build Feb 22 2021 16:38:43) complex                        
+  
+ POSCAR found type information on POSCAR S LiP S 
+ POSCAR found :  4 types and      84 ions
+ -----------------------------------------------------------------------------
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|     You use a magnetic or noncollinear calculation, but did not specify     |
+|     the initial magnetic moment with the MAGMOM tag. Note that a            |
+|     default of 1 will be used for all atoms. This ferromagnetic setup       |
+|     may break the symmetry of the crystal, in particular it may rule        |
+|     out finding an antiferromagnetic solution. Thence, we recommend         |
+|     setting the initial magnetic moment manually or verifying carefully     |
+|     that this magnetic setup is desired.                                    |
+|                                                                             |
+ -----------------------------------------------------------------------------
+
+ scaLAPACK will be used
+ -----------------------------------------------------------------------------
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|     For optimal performance we recommend to set                             |
+|       NCORE = 4 - approx SQRT(number of cores).                             |
+|     NCORE specifies how many cores store one orbital (NPAR=cpu/NCORE).      |
+|     This setting can greatly improve the performance of VASP for DFT.       |
+|     The default, NCORE=1 might be grossly inefficient on modern             |
+|     multi-core architectures or massively parallel machines. Do your        |
+|     own testing!!!!                                                         |
+|     Unfortunately you need to use the default for GW and RPA                |
+|     calculations (for HF NCORE is supported but not extensively tested      |
+|     yet).                                                                   |
+|                                                                             |
+ -----------------------------------------------------------------------------
+
+ LDA part: xc-table for Ceperly-Alder, standard interpolation
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ FFT: planning ...
+ WAVECAR not read
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1     0.118284431738E+04    0.11828E+04   -0.10156E+05 39424   0.342E+02
+DAV:   2    -0.262906669884E+03   -0.14458E+04   -0.13390E+04 51232   0.102E+02
+DAV:   3    -0.390664145376E+03   -0.12776E+03   -0.12585E+03 54048   0.286E+01
+DAV:   4    -0.399438127184E+03   -0.87740E+01   -0.87524E+01 62656   0.704E+00
+DAV:   5    -0.399537885996E+03   -0.99759E-01   -0.99750E-01 59136   0.737E-01    0.355E+01
+RMM:   6    -0.379674095150E+03    0.19864E+02   -0.14251E+01 45130   0.204E+00    0.168E+01
+RMM:   7    -0.390529909554E+03   -0.10856E+02   -0.45258E+00 51733   0.125E+00    0.882E+00
+RMM:   8    -0.395027107199E+03   -0.44972E+01   -0.92952E-01 50687   0.703E-01    0.427E+00
+RMM:   9    -0.396036672258E+03   -0.10096E+01   -0.27457E-01 54490   0.422E-01    0.143E+00
+RMM:  10    -0.396123983194E+03   -0.87311E-01   -0.10205E-01 60683   0.254E-01    0.582E-01
+RMM:  11    -0.396128442356E+03   -0.44592E-02   -0.21669E-02 63068   0.116E-01    0.314E-01
+RMM:  12    -0.396129689820E+03   -0.12475E-02   -0.33766E-03 60783   0.427E-02    0.112E-01
+RMM:  13    -0.396129655333E+03    0.34487E-04   -0.80354E-04 63137   0.215E-02    0.363E-02
+RMM:  14    -0.396129637596E+03    0.17737E-04   -0.20407E-04 67568   0.926E-03    0.180E-02
+RMM:  15    -0.396129630918E+03    0.66789E-05   -0.30313E-05 58747   0.369E-03
+   1 F= -.39612963E+03 E0= -.39612744E+03  d E =-.438266E-02  mag=     0.9320
+ Starting Core_Hole_Spec
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ ZCORE=   10.0000000000000      ECORE=  -2393.17085973796     
+ Ending Core_Hole_Spec
