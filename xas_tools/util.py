@@ -88,11 +88,15 @@ def broaden(x_in, y_in, fwhm, fwhm2=None, xlim=None, n=100, sigma=False,
         if xlim[1] is not None:
             x1 = min(xlim[1], x1)
 
+    # determine non-zero y values so that we can ignore exact zero
+    # values at beginning and end of x range
+    idx = [i for i in range(len(x_in)) if y_in[i] != 0.0]
+
     y = np.zeros(n)
     x = np.linspace(x0, x1, n)
     y[0] = y_in[0]
     y[-1] = y_in[-1]
-    for i in range(1, len(x_in)-1):
+    for i in range(max(idx[0], 1), min(idx[-1], len(x_in)-1)):
         dx = 0.5*(x_in[i+1]-x_in[i-1])
         for j in range(1, n-1):
             y[j] += y_in[i]*func(x[j], x_in[i], scale[j]*s)*dx
