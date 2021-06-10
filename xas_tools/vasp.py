@@ -11,6 +11,7 @@ Set up and analyze XAS calculations performed with VASP.
 import glob
 import os
 import re
+import shutil
 
 import json
 import yaml
@@ -258,6 +259,10 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
     N_ch = len(structure_ch.sites)
     supercell = N_ch/N_no_ch
 
+    # copy CONTCAR file to output directory
+    shutil.copyfile(os.path.join(no_ch_path, 'CONTCAR'),
+                    os.path.join(outdir, 'no_corehole.vasp'))
+
     multiplicity = [int(os.path.basename(p).split('_')[-1]) for p in ch_paths]
     metadata = {
         'origin': os.path.relpath(base_path, outdir),
@@ -270,13 +275,14 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
         'fermi_energy_ch': [],
         'scf_path': os.path.relpath(no_ch_path, outdir),
         'ch_path': [],
-        'spectrum_path': []
+        'spectrum_path': [],
+        'structure_path': []
     }
 
     w1 = len(str(len(ch_paths)))
     w2 = len(str(max(multiplicity)))
-    csv_path_frmt = ("atom_{:0" + "{}".format(w1)
-                     + "d}_{:0" + "{}".format(w2) + "d}.csv")
+    chp_path_frmt = ("atom_{:0" + "{}".format(w1)
+                     + "d}_{:0" + "{}".format(w2) + "d}")
 
     for i, path in enumerate(ch_paths):
         outcar_path = glob.glob(os.path.join(path, "OUTCAR*"))[0]
@@ -311,14 +317,20 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
                           columns=['Raw Energy (eV)',
                                    'Aligned Energy (eV)',
                                    'Intensity'])
-        csv_path = csv_path_frmt.format(i+1, multiplicity[i])
+        csv_path = chp_path_frmt.format(i+1, multiplicity[i]) + ".csv"
         df.to_csv(os.path.join(outdir, csv_path), index=False)
+
+        # copy CONTCAR file from CHP calculation to output directory
+        poscar_path = chp_path_frmt.format(i+1, multiplicity[i]) + ".vasp"
+        shutil.copyfile(os.path.join(path, 'CONTCAR'),
+                        os.path.join(outdir, poscar_path))
 
         # keep track of meta data
         metadata['ch_path'].append(os.path.relpath(path, outdir))
         metadata['total_energy_ch'].append(etot_ch)
         metadata['fermi_energy_ch'].append(oc.efermi)
         metadata['spectrum_path'].append(csv_path)
+        metadata['structure_path'].append(poscar_path)
 
     with open(os.path.join(outdir, 'metadata.json'), 'w') as fp:
         json.dump(metadata, fp)
