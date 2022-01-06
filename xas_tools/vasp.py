@@ -125,6 +125,7 @@ class CHPCalculation(object):
         return {t: cnt[t]//n for t in cnt}
 
     def write_vasp_input(self, supercell=None, band_multiple=1,
+                         smearing=0.05, grid_points=40000, ncore=1,
                          path=".", vasp_set="LDA-XAS", write_no_ch=True):
         """
         Write VASP input files to the selected path.
@@ -133,6 +134,12 @@ class CHPCalculation(object):
           supercell: Tuple with multiples of the three lattice vectors
           band_multiple: Set NBANDS to band_multiple times the number of
             valence electrons
+          smearing: Width of Gaussian for the broadening of the dielectric
+            function
+          grid_points: number of grid points on which the spectrum should
+            be evaluated
+          ncore: VASP parallelization parameter NCORE.  Essentially, the
+            number of cores that work on the same orbital.
           path: base path name for input file directories
           vasp_set: name of the VASP input parameter set or path to a
             YAML file; currently only one named set is available (LDA-XAS)
@@ -144,6 +151,8 @@ class CHPCalculation(object):
         struc_super = self.structure.copy()
         if supercell is not None:
             struc_super.make_supercell(supercell)
+        else:
+            supercell = (1, 1, 1)
 
         try:
             with open(os.path.join(HERE, "{}.yaml".format(vasp_set))) as fp:
@@ -172,7 +181,8 @@ class CHPCalculation(object):
             # set the number of bands according to the user-defined
             # multiple:
             vaspset.user_incar_settings.update({
-                'NBANDS': num_valence*band_multiple
+                'NBANDS': num_valence*band_multiple,
+                'NCORE': ncore
             })
             vaspset.write_input(
                 os.path.join(path, "XAS_input_SCF"),
@@ -182,6 +192,24 @@ class CHPCalculation(object):
         w2 = len(str(max(self.active_mult.values())))
         dir_frmt = ("XAS_input_{:0" + "{}".format(w1)
                     + "d}_{:0" + "{}".format(w2) + "d}")
+
+        # store parameters as metadata
+        metadata = {
+            'xas_element': self.xas_element.symbol,
+            'valence_electrons': num_valence.tolist(),
+            'supercell': list(supercell),
+            'band_multiple': band_multiple,
+            'grid_points': grid_points,
+            'smearing': smearing,
+            'main_quantum_number': self.ch_n,
+            'angular_quantum_number': self.ch_l,
+            'corehole_electron_count': self.ch_z,
+            'active_atom_types': [i.tolist() for i in self.active_atom_types],
+            'multiplicity': [i.tolist() for i in
+                             list(self.active_mult.values())]
+        }
+        with open(os.path.join(path, 'metadata.json'), 'w') as fp:
+            json.dump(metadata, fp)
 
         for t in self.active_atom_types:
             # Get sites of all active atoms of the same type
@@ -205,10 +233,14 @@ class CHPCalculation(object):
             vaspset.user_incar_settings.update({
                 'NBANDS': num_valence*band_multiple,
                 'ICORELEVEL': 2,
+                'CH_LSPEC': True,
+                'CH_NEDOS': grid_points,
+                'CH_SIGMA': smearing,
                 'CLNT': 1,
                 'CLN': self.ch_n,
                 'CLL': self.ch_l,
-                'CLZ': self.ch_z
+                'CLZ': self.ch_z,
+                'NCORE': ncore
             })
 
             vaspset.write_input(

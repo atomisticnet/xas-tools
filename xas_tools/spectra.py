@@ -64,9 +64,9 @@ class AbsorptionSpectrum(object):
                 Y += b[1]
             return X, Y
 
-    def calculated_broadened(self, gauss_fwhm, lorentz_fwhm1,
-                             lorentz_fwhm2, n=100, energy_range=None,
-                             dE=1.0):
+    def calculate_broadened(self, gauss_fwhm=None, lorentz_fwhm1=None,
+                            lorentz_fwhm2=None, n=100, energy_range=None,
+                            dE=1.0):
         """
         Calculate broadened atomic spectra and store them in the attribute
         `self.broadened`.
@@ -77,16 +77,28 @@ class AbsorptionSpectrum(object):
         E_range = [self.E_min - dE, self.E_max + dE]
         if energy_range is not None:
             if energy_range[0] is not None:
-                E_range[0] = max(E_range[0], energy_range[0])
+                # E_range[0] = max(E_range[0], energy_range[0])
+                E_range[0] = energy_range[0]
             if energy_range[1] is not None:
-                E_range[1] = min(E_range[1], energy_range[1])
+                # E_range[1] = min(E_range[1], energy_range[1])
+                E_range[1] = energy_range[1]
         for i, line in enumerate(self.raw_data):
             m = self.multiplicity[i]
             X = line['Aligned Energy (eV)'].values
             Y = line['Intensity'].values*m
-            X2, Y2 = broaden(X, Y, gauss_fwhm, xlim=E_range, n=n)
-            X, Y = broaden(X2, Y2, lorentz_fwhm1, fwhm2=lorentz_fwhm2,
-                           xlim=E_range, n=n, lorentz=True)
+            if gauss_fwhm is not None:
+                X2, Y2 = broaden(X, Y, gauss_fwhm, xlim=E_range, n=n)
+            else:
+                X2, Y2 = X, Y
+            if lorentz_fwhm1 is not None:
+                if lorentz_fwhm2 is None:
+                    raise ValueError("Both Lorentz parametera required.")
+                else:
+                    X, Y = broaden(X2, Y2, lorentz_fwhm1,
+                                   fwhm2=lorentz_fwhm2, xlim=E_range,
+                                   n=n, lorentz=True)
+            else:
+                X, Y = X2, Y2
             self.broadened.append((X, Y))
 
     def plot_atomic_lines(self, dE=1.0, **kwargs):
