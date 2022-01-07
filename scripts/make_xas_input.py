@@ -19,7 +19,7 @@ __version__ = "0.11"
 
 
 def make_input(poscar_files, supercell, band_multiple, element, level,
-               core_hole, vasp_set):
+               core_hole, grid_points, ncore, vasp_set):
 
     for i, f in enumerate(poscar_files):
         struc = mg.Structure.from_file(f)
@@ -30,11 +30,15 @@ def make_input(poscar_files, supercell, band_multiple, element, level,
             chp.write_vasp_input(supercell=supercell,
                                  path=path,
                                  band_multiple=band_multiple,
+                                 grid_points=grid_points,
+                                 ncore=ncore,
                                  vasp_set=vasp_set)
         else:
             chp.write_vasp_input(supercell=supercell,
                                  path=path,
-                                 band_multiple=band_multiple)
+                                 band_multiple=band_multiple,
+                                 grid_points=grid_points,
+                                 ncore=ncore)
 
 
 def main():
@@ -80,6 +84,20 @@ def main():
         help="Fraction of the core hole in electrons (default: 1.0).",
         type=float,
         default=1.0)
+
+    parser.add_argument(
+        "--grid-points", "-g",
+        help="Number of grid points for the representation of "
+             "spectral lines (default: 40000).",
+        type=int,
+        default=40000)
+
+    parser.add_argument(
+        "--ncore",
+        help="VASP's NCORE parameter, which is usually square root of "
+             "the number of cores (default: 1).",
+        type=int,
+        default=1)
 
     parser.add_argument(
         "--vasp-set",
