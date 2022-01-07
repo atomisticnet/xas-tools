@@ -107,7 +107,8 @@ def main():
     args = parser.parse_args()
 
     make_input(args.poscar_files, args.supercell, args.band_multiple,
-               args.element, args.level, args.core_hole, args.vasp_set)
+               args.element, args.level, args.core_hole, args.grid_points,
+               args.ncore, args.vasp_set)
 
 
 if (__name__ == "__main__"):
