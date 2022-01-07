@@ -332,17 +332,22 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
         xas = []
         with monty.io.zopen(outcar_path) as fp:
             line = fp.readline()
-            while not re.search('IMAGINARY DIELECTRIC FUNCTION',
-                                line.decode('utf-8')):
+            if hasattr(line, 'decode'):
+                line = line.decode('utf-8')
+            while not re.search('IMAGINARY DIELECTRIC FUNCTION', line):
                 line = fp.readline()
             fp.readline()
             fp.readline()
-            line = fp.readline().decode('utf-8')
+            line = fp.readline()
+            if hasattr(line, 'decode'):
+                line = line.decode('utf-8')
             while len(line.strip()) > 0:
                 dielectric = [float(a) for a in line.split()]
                 xas.append([dielectric[0], dielectric[0] + dE,
                             np.sum(dielectric[1:])])
-                line = fp.readline().decode('utf-8')
+                line = fp.readline()
+                if hasattr(line, 'decode'):
+                    line = line.decode('utf-8')
         xas = np.array(xas)
 
         df = pd.DataFrame(data=xas,
