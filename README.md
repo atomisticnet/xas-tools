@@ -5,8 +5,8 @@
 This package is developed as part of a project funded by the
 U.S. Department of Energy.  See acknowledgment below.
 
-Haoyue Guo <hguo1@bnl.gov>, Matthew Carbone, Nong Artrith
-<nartrith@atomistic.net>, Deyu Lu, Alex Urban <a.urban@columbia.edu>
+Haoyue Guo (<hguo1@bnl.gov>), Matthew Carbone, Nong Artrith
+(<nartrith@atomistic.net>), Deyu Lu, Alex Urban (<a.urban@columbia.edu>)
 
 ## Installation
 
