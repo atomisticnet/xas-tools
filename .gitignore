@@ -1,3 +1,11 @@
+# make sure not to accidentally commit POTCAR files
+notebooks/Li3PS4_chp_input/
+notebooks/Li7P3S11_chp_input/
+
+# Emacs specific
+*~
+.#*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
