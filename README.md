@@ -6,7 +6,7 @@ Haoyue Guo (<haoyue1619@gmail.com>), Nong Artrith
 (<n.artrith@uu.nl>), Alex Urban (<a.urban@columbia.edu>)
 
 See also: <br/>
-Haoyue Guo, Matthew R. Carbone, Chuntian Cao, Jianzhou Qu, Yonghua Du, Seong-Min Bak, Conan Weiland, Feng Wang, Shinjae Yoo, Nongnuch Artrith, Alexander Urban, Deyu Lu, ["Simulated sulfur K-edge X-ray absorption spectroscopy database of lithium thiophosphate solid electrolytes", **2023**, https://doi.org/10.48550/arXiv.2302.00126](https://doi.org/10.48550/arXiv.2302.00126) 
+Haoyue Guo, Matthew R. Carbone, Chuntian Cao, Jianzhou Qu, Yonghua Du, Seong-Min Bak, Conan Weiland, Feng Wang, Shinjae Yoo, Nongnuch Artrith*, Alexander Urban*, Deyu Lu*, ["Simulated sulfur K-edge X-ray absorption spectroscopy database of lithium thiophosphate solid electrolytes", **2023**, https://doi.org/10.48550/arXiv.2302.00126](https://doi.org/10.48550/arXiv.2302.00126); Nature Scientific Data **10** , 349, 2023: (https://doi.org/10.1038/s41597-023-02262-4).
 
 ## Installation
 
