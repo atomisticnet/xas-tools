@@ -222,7 +222,7 @@ class CHPCalculation(object):
             site_list = struc_super.sites.copy()
             site_list = [site_list[active[0]]] + site_list
             del site_list[active[0]+1]
-            xas_struc = mg.Structure.from_sites(site_list)
+            xas_struc = mg.core.Structure.from_sites(site_list)
 
             vaspset = DictSet(xas_struc, config,
                               sort_structure=False,
@@ -248,7 +248,8 @@ class CHPCalculation(object):
                 make_dir_if_not_present=True)
 
 
-def parse_vasp_chp_output(base_path, output_path='XAS_output'):
+def parse_vasp_chp_output(base_path, output_path='XAS_output',
+                          include_components=False):
     """
     Read and process output from core-hole potential calculations.
 
@@ -259,6 +260,8 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
         in directories named "XAS_input_*_*".
       output_path (str): Directory in which the processed XAS output data
         should be collected.
+      include_components (bool): Include the x/y/z components of the
+        imaginary part of the dielectric function in the output file
 
     Returns:
       An AbsorptionSpectrum object
@@ -283,10 +286,15 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
     oszicar_no_ch = Oszicar(oszicar_path_no_ch)
     etot_no_ch = oszicar_no_ch.ionic_steps[-1]['E0']
 
+    # read the Fermi energy of the calculation without core hole
+    outcar_path = glob.glob(os.path.join(no_ch_path, "OUTCAR*"))[0]
+    oc = Outcar(outcar_path)
+    efermi_no_ch = oc.efermi
+
     # read also the structures to determine the size of the supercell
-    structure_no_ch = mg.Structure.from_file(
+    structure_no_ch = mg.core.Structure.from_file(
         os.path.join(no_ch_path, 'CONTCAR'))
-    structure_ch = mg.Structure.from_file(os.path.join(ch_paths[0], 'CONTCAR'))
+    structure_ch = mg.core.Structure.from_file(os.path.join(ch_paths[0], 'CONTCAR'))
     N_no_ch = len(structure_no_ch.sites)
     N_ch = len(structure_ch.sites)
     supercell = N_ch/N_no_ch
@@ -304,6 +312,7 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
         'multiplicity': multiplicity,
         'total_energy_scf': etot_no_ch*supercell,
         'total_energy_ch': [],
+        'fermi_energy_scf': efermi_no_ch*supercell,
         'fermi_energy_ch': [],
         'scf_path': os.path.relpath(no_ch_path, outdir),
         'ch_path': [],
@@ -323,7 +332,6 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
         # read total energy
         oszicar = Oszicar(oszicar_path)
         etot_ch = oszicar.ionic_steps[-1]['E0']
-        dE = etot_ch - etot_no_ch*supercell
 
         # read Fermi energy
         oc = Outcar(outcar_path)
@@ -336,6 +344,8 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
                 line = line.decode('utf-8')
             while not re.search('IMAGINARY DIELECTRIC FUNCTION', line):
                 line = fp.readline()
+                if hasattr(line, 'decode'):
+                    line = line.decode('utf-8')
             fp.readline()
             fp.readline()
             line = fp.readline()
@@ -343,17 +353,24 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
                 line = line.decode('utf-8')
             while len(line.strip()) > 0:
                 dielectric = [float(a) for a in line.split()]
-                xas.append([dielectric[0], dielectric[0] + dE,
-                            np.sum(dielectric[1:])])
+                if include_components:
+                    xas.append([dielectric[0], np.sum(dielectric[1:]),
+                                dielectric[1], dielectric[2], dielectric[3]])
+                else:
+                    xas.append([dielectric[0], np.sum(dielectric[1:])])
                 line = fp.readline()
                 if hasattr(line, 'decode'):
                     line = line.decode('utf-8')
         xas = np.array(xas)
 
-        df = pd.DataFrame(data=xas,
-                          columns=['Raw Energy (eV)',
-                                   'Aligned Energy (eV)',
-                                   'Intensity'])
+        if include_components:
+            columns = ['Energy (eV)', 'Intensity',
+                       'omega_x', 'omega_y', 'omega_z']
+            df = pd.DataFrame(data=xas, columns=columns)
+        else:
+            df = pd.DataFrame(data=xas,
+                              columns=['Energy (eV)',
+                                       'Intensity'])
         csv_path = chp_path_frmt.format(i+1, multiplicity[i]) + ".csv"
         df.to_csv(os.path.join(outdir, csv_path), index=False)
 

@@ -22,7 +22,7 @@ def make_input(poscar_files, supercell, band_multiple, element, level,
                core_hole, grid_points, ncore, vasp_set):
 
     for i, f in enumerate(poscar_files):
-        struc = mg.Structure.from_file(f)
+        struc = mg.core.Structure.from_file(f)
         chp = CHPCalculation(struc, element=element, n=level[0],
                              ell=level[1], z=core_hole)
         path = os.path.basename("XAS_" + f + "_{}".format(i))

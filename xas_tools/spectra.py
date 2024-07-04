@@ -38,6 +38,8 @@ class AbsorptionSpectrum(object):
             self.raw_data.append(pd.read_csv(os.path.join(path, csv_path)))
         self.E_min, self.E_max = self._get_edge_energies()
         self.broadened = None
+        self.has_xyz_components = False
+        self.xyz_components = None
 
     def __str__(self):
         out = 'Absorption Spectrum\n'
@@ -45,11 +47,11 @@ class AbsorptionSpectrum(object):
         return out
 
     def _get_edge_energies(self):
-        E_min = self.raw_data[0]['Aligned Energy (eV)'].values[-1]
-        E_max = self.raw_data[0]['Aligned Energy (eV)'].values[0]
+        E_min = self.raw_data[0]['Energy (eV)'].values[-1]
+        E_max = self.raw_data[0]['Energy (eV)'].values[0]
         for line in self.raw_data:
             idx = line['Intensity'].values > 0
-            E = line['Aligned Energy (eV)'].values[idx]
+            E = line['Energy (eV)'].values[idx]
             E_min = min(E_min, np.min(E))
             E_max = max(E_max, np.max(E))
         return E_min, E_max
@@ -63,6 +65,18 @@ class AbsorptionSpectrum(object):
             for b in self.broadened[1:]:
                 Y += b[1]
             return X, Y
+
+    @property
+    def xyz_broadened(self):
+        if self.xyz_components is None:
+            return None
+        else:
+            X, Yx, Yy, Yz = self.xyz_components[0]
+            for b in self.xyz_components[1:]:
+                Yx += b[1]
+                Yy += b[2]
+                Yz += b[3]
+            return X, Yx, Yy, Yz
 
     def calculate_broadened(self, gauss_fwhm=None, lorentz_fwhm1=None,
                             lorentz_fwhm2=None, n=100, energy_range=None,
@@ -84,12 +98,28 @@ class AbsorptionSpectrum(object):
                 E_range[1] = energy_range[1]
         for i, line in enumerate(self.raw_data):
             m = self.multiplicity[i]
-            X = line['Aligned Energy (eV)'].values
+            X = line['Energy (eV)'].values
             Y = line['Intensity'].values*m
+            try:
+                omega_x = line['omega_x'].values*m
+                omega_y = line['omega_y'].values*m
+                omega_z = line['omega_z'].values*m
+                self.xyz_components = []
+                self.has_xyz_components = True
+            except KeyError:
+                self.has_xyz_components = False
             if gauss_fwhm is not None:
                 X2, Y2 = broaden(X, Y, gauss_fwhm, xlim=E_range, n=n)
+                if self.has_xyz_components:
+                    _, Y2x = broaden(X, omega_x, gauss_fwhm, xlim=E_range, n=n)
+                    _, Y2y = broaden(X, omega_y, gauss_fwhm, xlim=E_range, n=n)
+                    _, Y2z = broaden(X, omega_z, gauss_fwhm, xlim=E_range, n=n)
             else:
                 X2, Y2 = X, Y
+                if self.has_xyz_components:
+                    Y2x = omega_x
+                    Y2y = omega_y
+                    Y2z = omega_z
             if lorentz_fwhm1 is not None:
                 if lorentz_fwhm2 is None:
                     raise ValueError("Both Lorentz parametera required.")
@@ -97,9 +127,25 @@ class AbsorptionSpectrum(object):
                     X, Y = broaden(X2, Y2, lorentz_fwhm1,
                                    fwhm2=lorentz_fwhm2, xlim=E_range,
                                    n=n, lorentz=True)
+                    if self.has_xyz_components:
+                        _, Yx = broaden(X2, Y2x, lorentz_fwhm1,
+                                        fwhm2=lorentz_fwhm2, xlim=E_range,
+                                        n=n, lorentz=True)
+                        _, Yy = broaden(X2, Y2y, lorentz_fwhm1,
+                                        fwhm2=lorentz_fwhm2, xlim=E_range,
+                                        n=n, lorentz=True)
+                        _, Yz = broaden(X2, Y2z, lorentz_fwhm1,
+                                        fwhm2=lorentz_fwhm2, xlim=E_range,
+                                        n=n, lorentz=True)
             else:
                 X, Y = X2, Y2
+                if self.has_xyz_components:
+                    Yx = Y2x
+                    Yy = Y2y
+                    Yz = Y2z
             self.broadened.append((X, Y))
+            if self.has_xyz_components:
+                self.xyz_components.append((X, Yx, Yy, Yz))
 
     def plot_atomic_lines(self, dE=1.0, **kwargs):
         """
@@ -134,7 +180,7 @@ class AbsorptionSpectrum(object):
         fig, ax = plt.subplots()
         for i, line in enumerate(self.raw_data):
             m = self.multiplicity[i]
-            X = line['Aligned Energy (eV)'].values
+            X = line['Energy (eV)'].values
             Y = line['Intensity']*m
             ax.plot(X, Y)
         ax.set_xlim([self.E_min - dE, self.E_max + dE])
