@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 import pymatgen as mg
+import pymatgen.core
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.sets import DictSet
 from pymatgen.io.vasp.outputs import Outcar, Oszicar
@@ -55,7 +56,7 @@ class CHPCalculation(object):
 
         """
         self.structure = structure
-        self.xas_element = mg.Element(element)
+        self.xas_element = mg.core.Element(element)
         self.ch_n = n
         self.ch_l = ell
         self.ch_z = z
