@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 import pymatgen as mg
+import pymatgen.core
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.io.vasp.sets import DictSet
 from pymatgen.io.vasp.outputs import Outcar, Oszicar
@@ -55,7 +56,7 @@ class CHPCalculation(object):
 
         """
         self.structure = structure
-        self.xas_element = mg.Element(element)
+        self.xas_element = mg.core.Element(element)
         self.ch_n = n
         self.ch_l = ell
         self.ch_z = z
@@ -222,7 +223,7 @@ class CHPCalculation(object):
             site_list = struc_super.sites.copy()
             site_list = [site_list[active[0]]] + site_list
             del site_list[active[0]+1]
-            xas_struc = mg.Structure.from_sites(site_list)
+            xas_struc = mg.core.Structure.from_sites(site_list)
 
             vaspset = DictSet(xas_struc, config,
                               sort_structure=False,
@@ -284,9 +285,9 @@ def parse_vasp_chp_output(base_path, output_path='XAS_output'):
     etot_no_ch = oszicar_no_ch.ionic_steps[-1]['E0']
 
     # read also the structures to determine the size of the supercell
-    structure_no_ch = mg.Structure.from_file(
+    structure_no_ch = mg.core.Structure.from_file(
         os.path.join(no_ch_path, 'CONTCAR'))
-    structure_ch = mg.Structure.from_file(os.path.join(ch_paths[0], 'CONTCAR'))
+    structure_ch = mg.core.Structure.from_file(os.path.join(ch_paths[0], 'CONTCAR'))
     N_no_ch = len(structure_no_ch.sites)
     N_ch = len(structure_ch.sites)
     supercell = N_ch/N_no_ch
