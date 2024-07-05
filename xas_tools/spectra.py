@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from .util import broaden
+from .util import broaden, variable_convolution, gauss_function, lorentz_function
 
 __author__ = "Alex Urban, Nong Artrith"
 __email__ = "a.urban@columbia.edu"
@@ -81,6 +81,86 @@ class AbsorptionSpectrum(object):
     def calculate_broadened(self, gauss_fwhm=None, lorentz_fwhm1=None,
                             lorentz_fwhm2=None, n=100, energy_range=None,
                             dE=1.0):
+        """
+        Calculate broadened atomic spectra and store them in the attribute
+        `self.broadened`.
+
+        """
+
+        self.broadened = []
+        E_range = [self.E_min - dE, self.E_max + dE]
+        if energy_range is not None:
+            if energy_range[0] is not None:
+                E_range[0] = energy_range[0]
+            if energy_range[1] is not None:
+                E_range[1] = energy_range[1]
+        for i, line in enumerate(self.raw_data):
+            m = self.multiplicity[i]
+            X = line['Energy (eV)'].values
+            Y = line['Intensity'].values*m
+            try:
+                omega_x = line['omega_x'].values*m
+                omega_y = line['omega_y'].values*m
+                omega_z = line['omega_z'].values*m
+                self.xyz_components = []
+                self.has_xyz_components = True
+            except KeyError:
+                self.has_xyz_components = False
+            if gauss_fwhm is not None:
+                sigma = gauss_fwhm/(2.0*np.sqrt(2.0*np.log(2.0)))
+                X2, Y2 = variable_convolution(X, Y, gauss_function,
+                                              sigma, num_points=n,
+                                              x_range=E_range)
+                if self.has_xyz_components:
+                    _, Y2x = variable_convolution(
+                        X, omega_x, gauss_function, sigma, num_points=n,
+                        x_range=E_range)
+                    _, Y2y = variable_convolution(
+                        X, omega_y, gauss_function, sigma, num_points=n,
+                        x_range=E_range)
+                    _, Y2z = variable_convolution(
+                        X, omega_z, gauss_function, sigma, num_points=n,
+                        x_range=E_range)
+            else:
+                X2, Y2 = X, Y
+                if self.has_xyz_components:
+                    Y2x = omega_x
+                    Y2y = omega_y
+                    Y2z = omega_z
+            if lorentz_fwhm1 is not None:
+                if lorentz_fwhm2 is None:
+                    raise ValueError("Both Lorentz parametera required.")
+                else:
+                    X, Y = variable_convolution(
+                        X2, Y2, lorentz_function, lorentz_fwhm1,
+                        sigma_end=lorentz_fwhm2, num_points=n,
+                        x_range=E_range)
+                    if self.has_xyz_components:
+                        _, Yx = variable_convolution(
+                            X2, Y2x, lorentz_function, lorentz_fwhm1,
+                            sigma_end=lorentz_fwhm2, num_points=n,
+                            x_range=E_range)
+                        _, Yy = variable_convolution(
+                            X2, Y2y, lorentz_function, lorentz_fwhm1,
+                            sigma_end=lorentz_fwhm2, num_points=n,
+                            x_range=E_range)
+                        _, Yz = variable_convolution(
+                            X2, Y2z, lorentz_function, lorentz_fwhm1,
+                            sigma_end=lorentz_fwhm2, num_points=n,
+                            x_range=E_range)
+            else:
+                X, Y = X2, Y2
+                if self.has_xyz_components:
+                    Yx = Y2x
+                    Yy = Y2y
+                    Yz = Y2z
+            self.broadened.append((X, Y))
+            if self.has_xyz_components:
+                self.xyz_components.append((X, Yx, Yy, Yz))
+
+    def calculate_broadened_old(self, gauss_fwhm=None, lorentz_fwhm1=None,
+                                lorentz_fwhm2=None, n=100, energy_range=None,
+                                dE=1.0):
         """
         Calculate broadened atomic spectra and store them in the attribute
         `self.broadened`.

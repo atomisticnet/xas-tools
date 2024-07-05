@@ -5,6 +5,19 @@ Utility functions.
 
 import numpy as np
 
+# Check if Numba is available
+try:
+    from numba import jit
+    numba_available = True
+except ImportError:
+    numba_available = False
+
+    # Define a no-op decorator
+    def jit(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 __author__ = "Nong Artrith, Alexander Urban"
 __email__ = "nartrith@atomistic.net"
 __maintainer__ = "Nong Artrith, Alexander Urban"
@@ -13,7 +26,7 @@ __maintainer_email__ = ("nartrith@atomistic.net"
 __date__ = "2021-06-08"
 __version__ = "0.1"
 
-
+@jit(nopython=True)
 def gauss_function(x, x0, s):
     """
     Normalized Gaussian
@@ -27,6 +40,7 @@ def gauss_function(x, x0, s):
     return np.exp(-0.5*((x-x0)/s)**2)/(s*np.sqrt(2.0*np.pi))
 
 
+@jit(nopython=True)
 def lorentz_function(x, x0, w):
     """
     Normalized Lorentz (Cauchy) function
@@ -40,9 +54,73 @@ def lorentz_function(x, x0, w):
     return 2.0/(w*np.pi)/(1.0 + 4.0*(x - x0)**2/w**2)
 
 
+def variable_convolution(x, y, kernel_func, sigma_start, sigma_end=None,
+                         num_points=None, x_range=None):
+    """
+    Apply convolution with a kernel of linearly varying or static
+    width across the x range.
+
+    Args:
+        x (ndarray): X values.
+        y (ndarray): Y values.
+        kernel_func (function): Kernel function f(x, x_center, sigma).
+        sigma_start (float): Initial standard deviation.
+        sigma_end (float, optional): Final standard deviation. If None,
+          sigma_start is used.
+        num_points (int, optional): Number of points to evaluate the
+          kernel function.  If None, the number of points in the
+          input x is used.
+        x_range (2-tuple, optional): Min and max x values for output.
+          If None, use min and max of `x`.
+
+    Returns:
+        x_out, y_out (ndarray): Convolved X and Y values.
+
+    """
+
+    if sigma_end is None:
+        sigma_end = sigma_start
+
+    if num_points is None:
+        num_points = len(x)
+
+    if x_range is not None:
+        x_min, x_max = x_range
+    else:
+        x_min, x_max = np.min(x), np.max(x)
+
+    return _variable_convolution_numba(x, y, sigma_start, sigma_end,
+                                       num_points, x_min, x_max)
+
+
+@jit(nopython=True)
+def _variable_convolution_numba(x, y, sigma_start, sigma_end, num_points,
+                                x_min, x_max):
+    """
+    A helper function for Numba.  See `variable_convolution` for the
+    documentation of the arguments.
+
+    """
+    sigmas = np.linspace(sigma_start, sigma_end, len(x))
+    x_out = np.linspace(x_min, x_max, num_points)
+    y_out = np.zeros(num_points)
+
+    for i in range(len(x)):
+        sigma = sigmas[i]
+        kernel = gauss_function(x_out, x[i], sigma)
+        kernel_sum = np.sum(kernel)
+        if kernel_sum != 0:
+            kernel /= kernel_sum
+            y_out += y[i] * kernel
+
+    return x_out, y_out
+
+
 def broaden(x_in, y_in, fwhm, fwhm2=None, xlim=None, n=100, sigma=False,
             lorentz=False):
     """
+    Deprecated.  Use the function `variable_convolution` instead.
+
     Broaden a line shape via convolution with a distribution function.
     A Gaussian function is used unless `lorentz` is set to True, in
     which case a Lorentzian function is used.
